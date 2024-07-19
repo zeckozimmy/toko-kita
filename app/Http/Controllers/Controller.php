@@ -21,6 +21,7 @@ class Controller extends BaseController
 
     public function shop(Request $request)
     {
+        //TODO here
         if ($request->has('kategory') && $request->has('type')) {
             $category = $request->input('kategory');
             $type = $request->input('type');

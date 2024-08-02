@@ -64,10 +64,10 @@
                             <div class="col-sm-6">
                                 @if (Auth::user())
                                     <input type="number" class="form-control discount" id="discount" name="discount"
-                                        value="0">
+                                        value="0" disabled>
                                 @else
                                     <input type="number" class="form-control discount" id="discount" name="discount"
-                                        value="0">
+                                        value="0" disabled>
                                 @endif
 
                             </div>
@@ -75,14 +75,14 @@
                         <div class="row mb-3">
                             <label for="PPn" class="col-form-label col-sm-6">PPn</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control ppn" id="PPn" name="PPn" value="0">
+                                <input type="text" class="form-control ppn" id="PPn" name="PPn" value="0" disabled>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label for="ongkir" class="col-form-label col-sm-6">Ongkir</label>
                             <div class="col-sm-6">
                                 <input type="number" class="form-control ongkir" id="ongkir" name="ongkir"
-                                    value="0">
+                                    value="0" disabled>
                             </div>
                         </div>
                         <hr>

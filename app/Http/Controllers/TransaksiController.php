@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\transaksi;
-use App\Http\Requests\StoretransaksiRequest;
-use App\Http\Requests\UpdatetransaksiRequest;
-use App\Models\product;
-use App\Models\tblCart;
+use App\Models\Transaksi;
+use App\Http\Requests\StoreTransaksiRequest;
+use App\Http\Requests\UpdateTransaksiRequest;
+use App\Models\Product;
+use App\Models\TblCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -18,26 +18,24 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $best = product::where('quantity_out','>=',5)->get();
-        $data = product::paginate(15);
-        $countKeranjang = tblCart::where(['idUser' => 'guest123', 'status' => 0])->count();
+        $best = Product::where('quantity_out', '>=', 5)->get();
+        $data = Product::paginate(15);
+        $countKeranjang = TblCart::where(['idUser' => 'guest123', 'status' => 0])->count();
         return view('pelanggan.page.home', [
-            'title'     => 'Home',
-            'data'      => $data,
-            'best'      => $best,
-            'count'     => $countKeranjang,
+            'title' => 'Home',
+            'data'  => $data,
+            'best'  => $best,
+            'count' => $countKeranjang,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function addTocart(Request $request)
+    public function addToCart(Request $request)
     {
         $idProduct = $request->input('idProduct');
-
-        $db = new tblCart ;
-        $product = product::find($idProduct);
+        $product = Product::find($idProduct);
         $field = [
             'idUser'    => 'guest123',
             'id_barang' => $idProduct,
@@ -45,14 +43,14 @@ class TransaksiController extends Controller
             'price'     => $product->harga,
         ];
 
-        $db::create($field);
+        TblCart::create($field);
         return redirect('/');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoretransaksiRequest $request)
+    public function store(StoreTransaksiRequest $request)
     {
         //
     }
@@ -60,7 +58,7 @@ class TransaksiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(transaksi $transaksi)
+    public function show(Transaksi $transaksi)
     {
         //
     }
@@ -68,7 +66,7 @@ class TransaksiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(transaksi $transaksi)
+    public function edit(Transaksi $transaksi)
     {
         //
     }
@@ -76,7 +74,7 @@ class TransaksiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatetransaksiRequest $request, transaksi $transaksi)
+    public function update(UpdateTransaksiRequest $request, Transaksi $transaksi)
     {
         //
     }
@@ -84,8 +82,20 @@ class TransaksiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(transaksi $transaksi)
+    public function destroy(Transaksi $transaksi)
     {
         //
+    }
+
+    /**
+     * Update the status of a transaction.
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $transaction = Transaksi::findOrFail($id);
+        $transaction->status = $request->input('status');
+        $transaction->save();
+
+        return redirect()->route('transactions.index')->with('success', 'Transaction status updated successfully.');
     }
 }

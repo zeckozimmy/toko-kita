@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Midtrans;
 use App\Models\modelDetailTransaksi;
 use App\Models\product;
 use App\Models\tblCart;
@@ -14,6 +15,8 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class Controller extends BaseController
 {
@@ -21,21 +24,19 @@ class Controller extends BaseController
 
     public function shop(Request $request)
     {
-        //TODO here
-        if ($request->has('kategory') && $request->has('type')) {
-            $category = $request->input('kategory');
-            $type = $request->input('type');
-            $data = product::where('kategory', $category)
-                ->orWhere('type', $type)->paginate(5);
-        } else {
-            $data = product::paginate(5);
+        $builder = product::orderBy('created_at', 'DESC');
+        if ($request->has('type')) {
+            $builder->where('type', $request->type);
         }
+        $data = $builder->paginate(5);
         $countKeranjang = tblCart::where(['idUser' => 'guest123', 'status' => 0])->count();
+        $label = product::select('type')->distinct()->get();
 
         return view('pelanggan.page.shop', [
             'title' => 'Shop',
             'data' => $data,
             'count' => $countKeranjang,
+            'label' => $label
         ]);
     }
 
@@ -167,7 +168,7 @@ class Controller extends BaseController
 
         $params = [
             'transaction_details' => [
-                'order_id' => $find_data->code_transaksi,
+                'order_id' => $find_data->id,
                 'gross_amount' => $find_data->total_harga,
             ],
             'customer_details' => [
@@ -177,13 +178,14 @@ class Controller extends BaseController
             ],
         ];
 
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
+        $midtrans = new Midtrans();
+        $res = (array)json_decode($midtrans->TransactionPush($params));
 
         return view('pelanggan.page.detailTransaksi', [
             'name' => 'Detail Transaksi',
             'title' => 'Detail Transaksi',
             'count' => $countKeranjang,
-            'token' => $snapToken,
+            'token' => $res['token'],
             'data' => $find_data,
         ]);
     }
@@ -213,14 +215,6 @@ class Controller extends BaseController
         ]);
     }
 
-    public function report()
-    {
-        return view('admin.page.report', [
-            'name' => "Report",
-            'title' => 'Admin Report',
-        ]);
-    }
-
     public function login()
     {
         return view('admin.page.login', [
@@ -238,6 +232,11 @@ class Controller extends BaseController
         ];
 
         $user = User::where('email', $request->email)->first();
+
+        if ($user === null) {
+            Session::flash('error', 'Email tidak ditemukan');
+            return back();
+        }
 
         if ($user->is_admin === 0) {
             Session::flash('error', 'Kamu bukan admin');
@@ -261,5 +260,28 @@ class Controller extends BaseController
         request()->session()->regenerateToken();
         Alert::toast('Kamu berhasil Logout', 'success');
         return redirect('admin');
+    }
+
+    public function cetak_pdf()
+    {
+        try {
+            $transaksi = Transaksi::all();
+
+            if ($transaksi->isEmpty()) {
+                throw new \Exception('No transaksi data available.');
+            }
+
+            // Load the PDF view with the transaksi data
+            $pdf = PDF::loadView('admin.page.transaksi_pdf', ['transaksi' => $transaksi]);
+
+            if (!$pdf) {
+                throw new \Exception('Failed to create PDF.');
+            }
+
+            return $pdf->download('laporan-transaksi.pdf');
+        } catch (\Exception $e) {
+            Log::error('PDF Generation Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate PDF.'], 500);
+        }
     }
 }

@@ -30,7 +30,7 @@
                     <div class="mb-3 row">
                         <label for="email" class="col-sm-5 col-form-label">Email Karyawan</label>
                         <div class="col-sm-7">
-                            <input type="email" class="form-control" id="email" name="email" 
+                            <input type="email" class="form-control" id="email" name="email"
                             autocomplete="off" value="{{$data->email}}">
                         </div>
                     </div>
@@ -65,6 +65,7 @@
                             <select type="text" class="form-control" id="role" name="role">
                                 <option value=""> Pilih Role </option>
                                 <option value="1" {{$data->role === 1 ? 'selected' : ''}}>Admin</option>
+                                <option value="2" {{$data->role === 0 ? 'selected' : ''}}>pelanggan</option>
                                 <option value="2" {{$data->role === 0 ? 'selected' : ''}}>Manager</option>
                             </select>
                         </div>

@@ -6,10 +6,16 @@
             <div class="card-header">
                 <h4>Total yang harus dibayar</h4>
             </div>
-            <div class="card-body">
-                <h6>Id Transaksi {{ $data->code_transaksi }}</h6>
-                <h6>{{ $data->nama_customer }}</h6>
-                <h6>{{ number_format($data->total_harga) }}</h6>
+            <div class="card-body d-flex">
+                <div style="flex: 1;">
+                    <img src="{{ asset('storage/product/' . $data->foto) }}" alt="{{ $data->nama_product }}"
+                         style="width: 100%; height: 200px; object-fit: cover; padding: 0;">
+                </div>
+                <div style="flex: 2; padding-left: 20px;">
+                    <h6>Id Transaksi: {{ $data->code_transaksi }}</h6>
+                    <h6>Nama Customer: {{ $data->nama_customer }}</h6>
+                    <h6>Total Harga: {{ number_format($data->total_harga) }}</h6>
+                </div>
             </div>
 
             <div class="p-2">

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [TransaksiController::class, 'index'])->name('home');
 Route::POST('/addTocart', [TransaksiController::class, 'addTocart'])->name('addTocart');
 Route::POST('/storePelanggan', [UserController::class, 'storePelanggan'])->name('storePelanggan');
-Route::POST('/login_pelanggan', [UserController::class, 'loginProses'])->name('loginproses.pelanggan');
+Route::post('/login_pelanggan', [UserController::class, 'loginProses'])->name('loginproses.pelanggan');
 Route::GET('/logout_pelanggan', [UserController::class, 'logout'])->name('logout.pelanggan');
 
 Route::get('/shop', [Controller::class, 'shop'])->name('shop');
@@ -43,7 +43,7 @@ Route::group(['middleware' => 'admin'], function () {
     Route::get('/admin/dashboard', [Controller::class, 'admin'])->name('admin');
     Route::get('/admin/product', [ProductController::class, 'index'])->name('product');
     Route::get('/admin/logout', [Controller::class, 'logout'])->name('logout');
-    Route::get('/admin/report', [Controller::class, 'report'])->name('report');
+    Route::get('/admin/cetak_pdf', [Controller::class, 'cetak_pdf'])->name('cetak_pdf');
     Route::get('/admin/addModal', [ProductController::class, 'addModal'])->name('addModal');
 
     Route::GET('/admin/user_management', [UserController::class, 'index'])->name('userManagement');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
 
 class Midtrans extends Model
 {
@@ -12,7 +13,7 @@ class Midtrans extends Model
     public function urlTransaction()
     {
 
-        $url = 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+        $url = 'https://app.midtrans.com/snap/v1/transactions';
 
 
         return $url;
@@ -21,7 +22,7 @@ class Midtrans extends Model
     public function urlCheck($code)
     {
 
-        $url = 'https://api.sandbox.midtrans.com/v2/' . $code . '/status';
+        $url = 'https://app.midtrans.com/snap/v1/' . $code . '/status';
 
 
         return $url;
@@ -31,7 +32,7 @@ class Midtrans extends Model
     {
 
 
-        $auth = 'Authorization: Basic ' . base64_encode(getenv('midtrans_key_prod'));
+        $auth = 'Basic U0ItTWlkLXNlcnZlci1kR1c3Ym9DVW54aUUzTVNCWlhTX1R1LVc=';
 
         return $auth;
     }
@@ -51,61 +52,29 @@ class Midtrans extends Model
 
     public function TransactionPush($data)
     {
-        $auth = $this->authMidtrans();
-        $url = $this->urlTransaction();
-        $curl = curl_init();
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_HTTPHEADER => [
-                'Accept: application/json',
-                'Content-Type: application/json',
-                $auth,
-            ],
-        ]);
+        $response = Http::withBody(
+               json_encode($data)
+            )
+            ->withHeaders([
+                'Accept'=> '*/*',
+                'Authorization'=> 'Basic '.base64_encode(env('MIDTRANS_SERVERKEY')),
+                'Content-Type'=> 'application/json',
+            ]) 
+            ->post('https://app.midtrans.com/snap/v1/transactions');
 
-        $response = curl_exec($curl);
 
-        curl_close($curl);
-
-        return $response;
+        return $response->body();
     }
 
-    public function checkTransaction($code)
+    public  function checkTransaction($code)
     {
-        $url = $this->urlCheck($code);
-        $auth = $this->authMidtrans();
-        $url = $this->urlTransaction();
-        $curl = curl_init();
+        $response = Http::withHeaders([
+            'Accept'=> '*/*',
+            'Authorization'=> 'Basic '.base64_encode(env('MIDTRANS_SERVERKEY')),
+        ])
+        ->get('https://app.midtrans.com/snap/v1/'.$code.'/status');
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'Accept: application/json',
-                'Content-Type: application/json',
-                $auth,
-            ],
-        ]);
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-
-        return $response;
+        return $response->body();
     }
 }

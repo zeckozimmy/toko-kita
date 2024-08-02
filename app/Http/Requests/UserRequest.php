@@ -14,15 +14,14 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            'nik' => 'required|string|max:255',
-            'nama' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $this->id,
-            'password' => 'required|string|min:8|confirmed',
-            'alamat' => 'required|string|max:255',
-            'tlp' => 'required|string|max:15',
-            'role' => 'required|integer', // Ensure role is required
-            'tglLahir' => 'required|date',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'name' => 'required|string|max:255',
+            // 'email' => 'required|email|unique:users,email',
+            // 'password' => 'required|string|min:6|confirmed',
+            // 'alamat' => 'required|string|max:255',
+            // 'alamat2' => 'nullable|string|max:255',
+            // 'tlp' => 'required|string|max:15',
+            // 'date' => 'required|date',
+            // 'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ];
     }
 }
